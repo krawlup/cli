@@ -1,0 +1,58 @@
+{
+  "name": "@krawlup/cli",
+  "version": "1.2.0",
+  "description": "Official CLI for krawlup — manage products, insights and analytics from the terminal, with a free no-account site battery.",
+  "license": "MIT",
+  "author": "Nowshad Hossain Rahat",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/krawlup/cli.git"
+  },
+  "homepage": "https://github.com/krawlup/cli#readme",
+  "bugs": "https://github.com/krawlup/cli/issues",
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=18",
+    "bun": ">=1.2"
+  },
+  "bin": {
+    "krawlup": "./dist/entry.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "bun scripts/build.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "prepublishOnly": "bun run typecheck && bun run test && bun run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.31.0",
+    "ink": "^6.5.0",
+    "react": "^19.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24",
+    "@types/react": "^19",
+    "react-devtools-core": ">=6.1.2",
+    "typescript": "^5.9",
+    "vitest": "^3"
+  },
+  "keywords": [
+    "krawlup",
+    "seo",
+    "aeo",
+    "analytics",
+    "tui",
+    "cli",
+    "mcp",
+    "agent"
+  ]
+}
