@@ -4,7 +4,7 @@ All notable changes to `@krawlup/cli` are documented here. The format
 follows [Keep a Changelog](https://keepachangelog.com/) and the package
 uses [semantic versioning](https://semver.org/).
 
-## Unreleased
+## 1.2.2 - 2026-11-03
 
 ### Added
 
