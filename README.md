@@ -1,3 +1,17 @@
+<div align="center">
+
+```
+██   ██ ██████   █████  ██     ██ ██      ██    ██ ██████
+██  ██  ██   ██ ██   ██ ██     ██ ██      ██    ██ ██   ██
+█████   ██████  ███████ ██  █  ██ ██      ██    ██ ██████
+██  ██  ██   ██ ██   ██ ██ ███ ██ ██      ██    ██ ██
+██   ██ ██   ██ ██   ██  ███ ███  ███████  ██████  ██
+```
+
+**krawl** everything up — [krawlup.com](https://krawlup.com)
+
+</div>
+
 # Official CLI for krawlup — manage products, insights and analytics from the terminal, with a free no-account site battery.
 
 An interactive, streaming CLI for [krawlup.com](https://krawlup.com):
