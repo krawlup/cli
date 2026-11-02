@@ -4,6 +4,15 @@ All notable changes to `@krawlup/cli` are documented here. The format
 follows [Keep a Changelog](https://keepachangelog.com/) and the package
 uses [semantic versioning](https://semver.org/).
 
+## 1.2.1 - 2026-11-03
+
+### Added
+
+- **`--version` / `-v`** prints the CLI version and exits — read from
+  `package.json` at runtime, and the battery's User-Agent string
+  (`krawlup-cli/x.y.z`) now derives from the same source so the two can
+  never drift.
+
 ## 1.2.0 - 2026-11-03
 
 ### Added

@@ -1,6 +1,6 @@
 {
   "name": "@krawlup/cli",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Official CLI for krawlup — manage products, insights and analytics from the terminal, with a free no-account site battery.",
   "license": "MIT",
   "author": "Nowshad Hossain Rahat",

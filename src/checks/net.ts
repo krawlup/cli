@@ -8,8 +8,9 @@
  * byte cap on the body, a per-request timeout, and a stable User-Agent.
  */
 
-export const KRAWLUP_CLI_UA =
-  'Mozilla/5.0 (compatible; krawlup-cli/1.2; +https://krawlup.com/cli)'
+import { CLI_VERSION } from '../lib/version.js'
+
+export const KRAWLUP_CLI_UA = `Mozilla/5.0 (compatible; krawlup-cli/${CLI_VERSION}; +https://krawlup.com/cli)`
 /** The GPTBot identity, for `krawlup text --as-bot` ("what GPTBot sees"). */
 export const GPTBOT_UA = 'GPTBot/1.0 (+https://openai.com/gptbot)'
 

@@ -20,6 +20,7 @@ import type { ActionResult } from './actions.js'
 import { refreshScanConfig, scanConfig } from './state/scan-config.js'
 import { reportLeadPhrase, scanAllowance, type ScanConfig } from './lib/scan-allowance.js'
 import { normalizeDomainArg } from './lib/domain.js'
+import { CLI_VERSION } from './lib/version.js'
 import {
   localUsage,
   renderLocalJson,
@@ -49,6 +50,12 @@ const LOCAL_HELP_BLOCK = `
 `
 
 const argv = process.argv.slice(2)
+
+if (argv.includes('--version') || argv.includes('-v')) {
+  console.log(CLI_VERSION)
+  process.exit(0)
+}
+
 const interactive = !!process.stdout.isTTY && !!process.stdin.isTTY && argv.length === 0
 
 /**
@@ -88,6 +95,7 @@ function helpText(cfg: ScanConfig): string {
 ${LOCAL_HELP_BLOCK}
   --json                   machine-readable output on data commands
   --help, -h               this page
+  --version, -v            print the version and exit
 
 'krawlup report' needs no account: your device id (~/.krawlup/device-id)
 carries the free quota — ${allowanceText(cfg)} — and every report read
