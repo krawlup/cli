@@ -9,6 +9,7 @@ import { Box, Text, useInput } from 'ink'
 import React, { useEffect, useState } from 'react'
 import type { PublicReportPayload, PublicScanState } from '../api/public-scan.js'
 import { PUBLIC_SCAN_STAGES, stageBarPct, stagePacing } from '../api/public-scan.js'
+import { paceColor } from '../lib/ansi.js'
 import { timeAgo } from '../lib/format.js'
 import { scoreColor } from '../lib/score.js'
 import { IssueLine, Score, Section, useTerminalColumns } from './components.js'
@@ -34,16 +35,25 @@ function fmtClock(sec: number): string {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
 }
 
-function Bar({ pct, right, width }: { pct: number; right?: string; width: number }) {
+function Bar({ pct, right, rightTone, tone, width }: { pct: number; right?: string; rightTone?: 'green' | 'yellow' | 'red'; tone?: 'green' | 'yellow' | 'red'; width: number }) {
   const w = Math.max(6, width)
   const filled = Math.round((Math.min(100, Math.max(0, pct)) / 100) * w)
   const bar = '█'.repeat(Math.min(filled, w)) + '░'.repeat(Math.max(0, w - Math.min(filled, w)))
+  // Complete → green; otherwise the pace tone wins when a stage overruns
+  // (yellow ≤2× its expected seconds, red beyond); normal pace stays cyan.
+  const color = pct >= 100 ? 'green' : tone === 'yellow' || tone === 'red' ? tone : 'cyan'
   return (
     <Text>
       {'  '}
-      <Text color={pct >= 100 ? 'green' : 'cyan'}>{bar}</Text>{' '}
+      <Text color={color}>{bar}</Text>{' '}
       <Text bold>{Math.floor(pct)}%</Text>
-      {right ? <Text dimColor> {right}</Text> : null}
+      {right ? (
+        rightTone && rightTone !== 'green' ? (
+          <Text color={rightTone}> {right}</Text>
+        ) : (
+          <Text dimColor> {right}</Text>
+        )
+      ) : null}
     </Text>
   )
 }
@@ -82,6 +92,13 @@ export function PublicScanProgress({
   const elapsedInStage = (Date.now() - state.stageStartMs) / 1000
   const barPct = Math.max(state.barPct, stageBarPct(state.stageIdx, elapsedInStage, pacing))
   const cols = useTerminalColumns()
+  // Pace tones ("lower is better"): the bar tracks the ACTIVE stage against
+  // its expected seconds; the total clock tracks elapsed against everything
+  // planned so far. Green within plan, yellow ≤2× over, red beyond.
+  const stageExpected = PUBLIC_SCAN_STAGES[state.stageIdx]?.seconds ?? 0
+  const barTone = state.phase === 'done' ? 'green' : paceColor(elapsedInStage, stageExpected)
+  const plannedSec = PUBLIC_SCAN_STAGES.slice(0, state.stageIdx + 1).reduce((a, s) => a + s.seconds, 0)
+  const clockTone = state.phase === 'done' ? 'green' : paceColor(state.elapsedSec, plannedSec)
   // Checklist rows start at 6 columns (indent + mark); keep at least 20 for
   // the label, cap so the bar and elapsed line still fit on 60-col terminals.
   const labelW = Math.max(20, Math.min(42, cols - 40))
@@ -124,7 +141,13 @@ export function PublicScanProgress({
         )
       })}
       <Box marginTop={1}>
-        <Bar pct={barPct} right={fmtClock(state.elapsedSec)} width={Math.max(12, Math.min(32, cols - 44))} />
+        <Bar
+          pct={barPct}
+          right={fmtClock(state.elapsedSec)}
+          rightTone={clockTone}
+          tone={barTone}
+          width={Math.max(12, Math.min(32, cols - 44))}
+        />
       </Box>
       <Text dimColor>{'  '}{state.stageNote}</Text>
       {showEscHint && state.phase !== 'done' && onEsc ? (

@@ -41,6 +41,14 @@ export const MARKS: Record<CheckStatus, string> = {
   unknown: '–',
 }
 
+/** Ink color names / ANSI presets for each status (see lib/ansi.ts). */
+export const STATUS_COLOR: Record<CheckStatus, 'green' | 'yellow' | 'red' | 'gray'> = {
+  pass: 'green',
+  warn: 'yellow',
+  fail: 'red',
+  unknown: 'gray',
+}
+
 const SEVERITY: Record<CheckStatus, number> = {
   fail: 0,
   warn: 1,

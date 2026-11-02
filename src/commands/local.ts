@@ -24,7 +24,8 @@ import { collectOgFacts, judgeOg } from '../checks/og.js'
 import { textFacts, judgeText } from '../checks/text.js'
 import { checkPageLinks, judgeLinks } from '../checks/links.js'
 import { diffSnapshots, judgeDiff, loadSnapshot, makeSnapshot, saveSnapshot, defaultSnapshotDir } from '../checks/diff.js'
-import { exitFor, MARKS, summarize, type Check, type Section } from '../checks/verdict.js'
+import { exitFor, MARKS, STATUS_COLOR, summarize, type Check, type Section } from '../checks/verdict.js'
+import { bold, colorEnabled, cyan, dim, green, gray, red, yellow } from '../lib/ansi.js'
 
 export class UsageError extends Error {}
 
@@ -397,30 +398,42 @@ export async function runLocalCommand(cmd: string, args: string[], io: LocalIo =
 
 const DETAIL_CAP = 240
 
-/** Human output: mark + padded label + detail, one block per section. */
-export function renderLocalText(r: LocalResult): string {
+/**
+ * Human output: mark + padded label + detail, one block per section.
+ * `color` defaults to TTY auto-detection so pipes and `--json`/`--md`
+ * stay byte-clean; the Ink TUI renders its own structured view instead.
+ */
+export function renderLocalText(r: LocalResult, opts?: { color?: boolean }): string {
+  const on = opts?.color ?? colorEnabled()
   const out: string[] = []
-  out.push(r.title)
+  out.push(bold(r.title, on))
   out.push(
     [
-      r.summary.fail ? `${r.summary.fail} fail` : null,
-      r.summary.warn ? `${r.summary.warn} warn` : null,
-      r.summary.unknown ? `${r.summary.unknown} unknown` : null,
-      r.summary.pass ? `${r.summary.pass} pass` : null,
+      r.summary.fail ? red(`${r.summary.fail} fail`, on) : null,
+      r.summary.warn ? yellow(`${r.summary.warn} warn`, on) : null,
+      r.summary.unknown ? gray(`${r.summary.unknown} unknown`, on) : null,
+      r.summary.pass ? green(`${r.summary.pass} pass`, on) : null,
     ]
       .filter(Boolean)
-      .join(' · '),
+      .join(dim(' · ', on)),
   )
   for (const sec of r.sections) {
     out.push('')
-    out.push(sec.title)
-    for (const c of sec.checks) {
-      out.push(`  ${MARKS[c.status]} ${c.label.padEnd(18)}${c.detail.slice(0, DETAIL_CAP)}`)
-      if (c.fix) out.push(`    fix: ${c.fix}`)
+    out.push(bold(cyan(sec.title, on), on))
+    for (const ch of sec.checks) {
+      out.push(`  ${mark(ch.status, on)} ${ch.label.padEnd(18)}${ch.detail.slice(0, DETAIL_CAP)}`)
+      if (ch.fix) out.push(`    ${dim('fix:', on)} ${cyan(ch.fix, on)}`)
     }
-    if (sec.note) for (const line of sec.note.split('\n')) out.push(`  ${line.slice(0, DETAIL_CAP)}`)
+    if (sec.note) for (const line of sec.note.split('\n')) out.push(`  ${dim(line.slice(0, DETAIL_CAP), on)}`)
   }
   return out.join('\n')
+}
+
+/** The status glyph in its status color (green/yellow/red/gray). */
+function mark(status: Check['status'], on: boolean): string {
+  const preset = STATUS_COLOR[status]
+  const painter = preset === 'green' ? green : preset === 'yellow' ? yellow : preset === 'red' ? red : gray
+  return painter(MARKS[status], on)
 }
 
 export function renderLocalJson(r: LocalResult): string {

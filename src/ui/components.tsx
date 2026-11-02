@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react'
 import { barRow, sparkline } from '../lib/charts.js'
 import { fmtNum } from '../lib/format.js'
 import { scoreColor, severityTone } from '../lib/score.js'
+import { MARKS, STATUS_COLOR } from '../checks/verdict.js'
+import type { LocalResult } from '../commands/local.js'
 
 const SPINNER_FRAMES = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'] as const
 
@@ -195,5 +197,70 @@ export function IssueLine({ issue }: { issue: { id?: string; title?: string; sev
       <Text color={severityTone(issue.severity)}>●</Text> {title}
       {issue.displayValue ? <Text dimColor> — {issue.displayValue}</Text> : null}
     </Text>
+  )
+}
+
+/** DETAIL_CAP parity with the argv renderer (local.ts keeps it private). */
+const LOCAL_DETAIL_CAP = 240
+
+/**
+ * The local battery result, structured for the TUI scrollback — the Ink
+ * twin of `renderLocalText` with the same palette (marks by status, cyan
+ * section titles, dim notes, cyan fix values). Lives in history, so it
+ * renders once and never re-renders.
+ */
+export function LocalResultView({ result }: { result: LocalResult }) {
+  const s = result.summary
+  return (
+    <Box flexDirection="column">
+      <Text bold>{result.title}</Text>
+      <Text>
+        {[
+          s.fail ? <Text key="f" color="red">{s.fail} fail</Text> : null,
+          s.warn ? <Text key="w" color="yellow">{s.warn} warn</Text> : null,
+          s.unknown ? <Text key="u" color="gray">{s.unknown} unknown</Text> : null,
+          s.pass ? <Text key="p" color="green">{s.pass} pass</Text> : null,
+        ]
+          .filter(Boolean)
+          .map((node, i) => (
+            <Text key={i}>
+              {i > 0 ? <Text dimColor> · </Text> : null}
+              {node}
+            </Text>
+          ))}
+      </Text>
+      {result.sections.map((sec) => (
+        <Box key={sec.id} flexDirection="column" marginTop={1}>
+          <Text bold color="cyan">
+            {sec.title}
+          </Text>
+          {sec.checks.map((ch) => (
+            <Box key={ch.id} flexDirection="column">
+              <Text>
+                {'  '}
+                <Text color={STATUS_COLOR[ch.status]} bold={ch.status !== 'unknown'}>
+                  {MARKS[ch.status]}
+                </Text>{' '}
+                {ch.label.padEnd(18)}
+                {ch.detail.slice(0, LOCAL_DETAIL_CAP)}
+              </Text>
+              {ch.fix ? (
+                <Text>
+                  {'    '}
+                  <Text dimColor>fix: </Text>
+                  <Text color="cyan">{ch.fix}</Text>
+                </Text>
+              ) : null}
+            </Box>
+          ))}
+          {sec.note ? (
+            <Text dimColor>
+              {'  '}
+              {sec.note.split('\n').map((l) => l.slice(0, LOCAL_DETAIL_CAP)).join('\n  ')}
+            </Text>
+          ) : null}
+        </Box>
+      ))}
+    </Box>
   )
 }

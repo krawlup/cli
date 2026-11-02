@@ -21,6 +21,7 @@ import { refreshScanConfig, scanConfig } from './state/scan-config.js'
 import { reportLeadPhrase, scanAllowance, type ScanConfig } from './lib/scan-allowance.js'
 import { normalizeDomainArg } from './lib/domain.js'
 import { CLI_VERSION } from './lib/version.js'
+import { colorEnabled, cyan, green, red } from './lib/ansi.js'
 import {
   localUsage,
   renderLocalJson,
@@ -146,20 +147,25 @@ async function argvMode(): Promise<void> {
         console.log(helpText(scanConfig.get()))
         return
       case 'login': {
+        const outOn = colorEnabled()
         const out = await runLogin({
           apiBase: args[0],
           onUrl: (url, opened) =>
-            console.log(opened ? `opening your browser — if it did not, sign in at: ${url}` : `sign in: ${url}`),
+            console.log(
+              opened
+                ? `opening your browser — if it did not, sign in at: ${cyan(url, outOn)}`
+                : `sign in: ${cyan(url, outOn)}`,
+            ),
         })
-        console.log(`✓ signed in → ${out.api} (session stored at ~/.krawlup/session.json)`)
+        console.log(green('✓', outOn) + ` signed in → ${out.api} (session stored at ~/.krawlup/session.json)`)
         // A beta tester's allowance changes on sign-in — quote the new one.
         await refreshScanConfig(out.api)
-        if (scanConfig.get().betaUnlimited) console.log('✓ beta tester — free scans are unlimited on this account')
+        if (scanConfig.get().betaUnlimited) console.log(green('✓', outOn) + ' beta tester — free scans are unlimited on this account')
         return
       }
       case 'logout':
         await runLogout()
-        console.log('✓ signed out')
+        console.log(green('✓', colorEnabled()) + ' signed out')
         return
       case 'report': {
         const domain = args[0] ? normalizeDomainArg(args[0]) : null
@@ -346,7 +352,10 @@ async function argvMode(): Promise<void> {
             break
           case 'scan':
             result = await actions.scanAction(product, (update) => {
-              if (process.stderr.isTTY) console.error(update.pending ? '⏳ scan running…' : '⏳ scan finished')
+              if (process.stderr.isTTY) {
+                const errOn = colorEnabled(process.stderr)
+                console.error(update.pending ? '⏳ scan running…' : green('⏳ scan finished', errOn))
+              }
             })
             break
           case 'publish':
@@ -416,7 +425,7 @@ async function argvMode(): Promise<void> {
     if (argv.includes('--json')) {
       console.log(JSON.stringify({ error: true, message: msg }, null, 2))
     } else {
-      console.error(`✗ ${msg}`)
+      console.error(red(`✗ ${msg}`, colorEnabled(process.stderr)))
     }
     process.exitCode = e instanceof ReLoginRequired ? 2 : 1
   }

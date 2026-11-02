@@ -16,7 +16,7 @@ import * as actions from '../actions.js'
 import type { ActionResult } from '../actions.js'
 import type { ProductStatus } from '../api/types.js'
 import { SPLIT_NARROW, SPLIT_WIDE, WORDMARK_NARROW, WORDMARK_WIDE } from './banner.js'
-import { Spinner, useTerminalColumns } from './components.js'
+import { LocalResultView, Spinner, useTerminalColumns } from './components.js'
 import { LivePane } from './live-pane.js'
 import { ActionView } from './render.js'
 import { PublicScanProgress } from './public-report.js'
@@ -24,7 +24,7 @@ import { invalidate } from '../state/store.js'
 import { refreshScanConfig, useScanConfig } from '../state/scan-config.js'
 import { reportLeadPhrase, scanAllowance, scanAllowanceDetail, type ScanConfig } from '../lib/scan-allowance.js'
 import { normalizeDomainArg } from '../lib/domain.js'
-import { localUsage, renderLocalText, runLocalCommand, UsageError } from '../commands/local.js'
+import { localUsage, runLocalCommand, UsageError } from '../commands/local.js'
 
 /**
  * The command list. The report line quotes the FREE-SCAN ALLOWANCE the server
@@ -508,7 +508,7 @@ export function App(): React.ReactElement {
             }
             try {
               const result = await runLocalCommand(cmd, localArgs)
-              push(<Text>{renderLocalText(result)}</Text>)
+              push(<LocalResultView result={result} />)
             } catch (e) {
               if (e instanceof UsageError) {
                 push(<Text dimColor>{e.message}</Text>)

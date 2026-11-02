@@ -4,6 +4,23 @@ All notable changes to `@krawlup/cli` are documented here. The format
 follows [Keep a Changelog](https://keepachangelog.com/) and the package
 uses [semantic versioning](https://semver.org/).
 
+## Unreleased
+
+### Added
+
+- **Colored output across the CLI.** Battery marks read at a glance —
+  ✓ green, ! yellow, ✗ red, – gray — with section titles bold cyan,
+  `fix:` values cyan, and summary counts in their own colors. Success
+  messages print green, errors red, and the login URL cyan.
+- **Pace-colored loading screens** ("lower is better"): the free-report
+  progress bar and elapsed clock run green while a stage is within its
+  expected time, yellow up to twice over, red beyond — completed, green.
+- `NO_COLOR` is honored everywhere; `FORCE_COLOR=1`/`FORCE_COLOR=0`
+  forces color on or off past the TTY auto-detection. `--json` and
+  `--md` output never carry escape codes, and pipes stay byte-clean.
+- The interactive TUI renders battery results as a structured colored
+  view (same palette) instead of pasting the plain text render.
+
 ## 1.2.1 - 2026-11-03
 
 ### Added
