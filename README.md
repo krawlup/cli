@@ -1,12 +1,6 @@
 <div align="center">
 
-```
-██   ██ ██████   █████  ██     ██ ██      ██    ██ ██████
-██  ██  ██   ██ ██   ██ ██     ██ ██      ██    ██ ██   ██
-█████   ██████  ███████ ██  █  ██ ██      ██    ██ ██████
-██  ██  ██   ██ ██   ██ ██ ███ ██ ██      ██    ██ ██
-██   ██ ██   ██ ██   ██  ███ ███  ███████  ██████  ██
-```
+<img src="assets/wordmark.svg" alt="krawlup" width="460" />
 
 **krawl** everything up — [krawlup.com](https://krawlup.com)
 
